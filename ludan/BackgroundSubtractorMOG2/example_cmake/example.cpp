@@ -40,7 +40,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    Mat tmp_frame, bgmask, out_frame;
+    Mat tmp_frame, bgmask;
 
     cap >> tmp_frame;
     if(tmp_frame.empty())
@@ -53,8 +53,8 @@ int main(int argc, char** argv)
     namedWindow("segmented", 1);
 
     Ptr<BackgroundSubtractorMOG2> bgsubtractor=createBackgroundSubtractorMOG2();
-    bgsubtractor->setVarThreshold(10);
-    bgsubtractor->setNMixtures(3);
+    bgsubtractor->setVarThreshold(30);
+    bgsubtractor->setNMixtures(1);
     bgsubtractor->setDetectShadows(false);
     bgsubtractor->setBackgroundRatio(1.0);
     //cout << bgsubtractor->getBackgroundRatio() << endl;
@@ -66,14 +66,26 @@ int main(int argc, char** argv)
             break;
         
 	bgsubtractor->apply(tmp_frame, bgmask, update_bg_model ? -1 : 0);
+#if 1
+    Mat vertical = bgmask.clone();
+    // Specify size on vertical axis
+    int verticalsize = vertical.rows / 30;
+
+    // Create structure element for extracting vertical lines through morphology operations
+    Mat verticalStructure = getStructuringElement(MORPH_RECT, Size( 1,verticalsize));
+
+    // Apply morphology operations
+    erode(bgmask, bgmask, verticalStructure, Point(-1, -1));
+    dilate(bgmask, bgmask, verticalStructure, Point(-1, -1));
+#endif
 
         //imshow("video", tmp_frame);
         imshow("segmented", bgmask);
-        //imshow("segmented", out_frame);
         int keycode = waitKey(20);
         if( keycode == 27 )
             break;
-        if( keycode == ' ' )
+        
+	if( keycode == ' ' )
         {
             update_bg_model = !update_bg_model;
             printf("Learn background is in state = %d\n",update_bg_model);
