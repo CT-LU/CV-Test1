@@ -92,13 +92,13 @@ int main(int argc, char** argv)
 
 		//Dilate
 		Mat elementB(3, 3, CV_8U, Scalar(1));
-		dilate(bgmask, bgmask, elementB, Point(-1,-1), 1);
+		dilate(bgmask, bgmask, elementB, Point(-1,-1), 4);
 		imshow("Dilate", bgmask);
 
 		//MorphologyEx
-		//Mat elementC(1, 1, CV_8U, Scalar(1));
-		//morphologyEx(bgmask, bgmask, cv::MORPH_CLOSE, elementC);
-		//imshow("morph_close", bgmask);
+		Mat elementC(1, 1, CV_8U, Scalar(1));
+		morphologyEx(bgmask, bgmask, cv::MORPH_CLOSE, elementC);
+		imshow("morph_close", bgmask);
 
 
 		//Canny
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 		//get Contours external
 		findContours(bgmask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0) );
 
-		int area_threshold = 400;
+		int area_threshold = 1000;
 		//Mat result(bgmask.size(), CV_8U, Scalar(255));
 		Mat drawing = Mat::zeros(bgmask.size(), CV_8UC3);
 		for( size_t i = 0; i < contours.size(); i++ )

@@ -28,6 +28,7 @@ int area_threshold = 100;
 
 
 void colorSpaceHandler();
+void calcHistogram();
 void shapeHandler();
 void edgeDetector();
 void contoursHandler();
@@ -51,7 +52,10 @@ int main(int argc, char** argv)
 
 	//get Gray image
 	colorSpaceHandler();
-
+ 	
+	//Calculate Histogram
+	calcHistogram();
+	
 	//Let the shape to be full
 	shapeHandler();
 
@@ -82,6 +86,50 @@ void colorSpaceHandler()
 	//Color to Gray
 	cvtColor(image, image, CV_BGR2GRAY);
 	imshow("Gray Image", image);
+}
+
+void calcHistogram()
+{
+
+	//number of bin
+	int histSize[1] = {255};
+
+	//set range
+	float range[] = { 0, 255 };
+	const float* histRange = { range };
+
+	bool uniform = true;
+	bool accumulate = false;
+
+	//Result of Histogram
+	Mat hist;
+
+	//Calcaulate Histogram
+	calcHist( &image, 1, 0, Mat(), hist, 1, histSize, &histRange, uniform, accumulate );
+
+	//Canvas
+	int hist_w = 512;
+	int hist_h = 512;
+
+	//width of one bin
+	int bin_w = cvRound( (double) hist_w/histSize[0] );
+
+	//histImage
+	Mat histImage( hist_w, hist_h, CV_8UC3, Scalar( 0, 0, 0 ) );
+
+	//normalize
+	//normalize( hist, hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+	
+	//Draw Histogram on Canvas
+	for(size_t i = 0; i < histSize[0]; i++)
+	{
+		line( histImage, Point(bin_w*(i), hist_h - cvRound(hist.at<float>(i))), 
+			  Point( bin_w*(i), hist_h ), 
+			  Scalar( 0, 0, 255 ), bin_w, 8, 0 );
+	}
+
+	imshow("calcHist Demo", histImage);
+
 }
 
 
@@ -129,7 +177,8 @@ void contoursHandler()
 		}
 
 		Scalar color = Scalar( (rand()&255), (rand()&255), (rand()&255) );
-		drawContours( drawing, contours, int(i), color, 2, 8, hierarchy, 0, Point() );
+		drawContours( drawing, contours, int(i), color, CV_FILLED, 8, hierarchy, 0, Point() );
+		//drawContours( drawing, contours, int(i), color, 2, 8, hierarchy, 0, Point() );
 		//drawContours( drawing_lv1, contours, int(i), color, 2, 8, hierarchy, 1, Point() );
 		//drawContours( drawing_lv2, contours, int(i), color, 2, 8, hierarchy, 2, Point() );
 
