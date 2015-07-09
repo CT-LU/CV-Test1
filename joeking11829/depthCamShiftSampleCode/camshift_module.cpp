@@ -41,7 +41,6 @@ int main( int argc, constf char** argv )
 
 	for(;;)
 	{
-
 		//Get depth image
 		//
 		getDepthCamera(&frame);
