@@ -161,7 +161,10 @@ int main(int argc, char** argv){
 			ellipse( drawing, trackBox, Scalar(0,0,255), 3, LINE_AA );
 
 			//Draw focus retangle
-			rectangle( drawing, trackWindow, Scalar(0,255,0), 3, 8 );			
+			rectangle( drawing, trackWindow, Scalar(0,255,0), 3, 8 );
+
+			//Draw center of trackBox
+			circle( drawing, trackBox.center, 5, Scalar(181,186,10), -1, 8, 0 );
 
 		}else{
 			change_object = true;
