@@ -65,10 +65,6 @@ int filterDepthImage(Mat *image, int start_depth, int end_depth){
 	threshold(*image, *image, start_depth, 255, THRESH_TOZERO);
 	threshold(*image, *image, end_depth, 255, THRESH_TOZERO_INV);
 
-	//Need to filter x and y planes
-	//
-	//
-
 	adaptiveThreshold(*image, *image, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 3, -3);
 
 	//imshow( "threshold depth map", image );
@@ -76,3 +72,33 @@ int filterDepthImage(Mat *image, int start_depth, int end_depth){
 	return 0;
 }
 
+
+int setDepthImageROI(Mat *image, int x, int y, int width, int height){
+	
+	//print image property
+	//cout << "image->rows: " << image->rows << ", image.cols: " << image->cols << endl;
+
+	//create ROI
+	Rect roi = Rect(x, y, width, height);
+	
+	//Draw ROI on Source imagea
+	Mat new_image;
+	(*image).copyTo(new_image);
+	//cout << "new_image.rows: " << new_image.rows << ", new_image.cols: " << new_image.cols << endl;
+
+	rectangle(new_image, roi, Scalar(181,186,10), 3, 8);
+
+	/*
+	circle(new_image, Point(220,180), 5, Scalar(181, 186, 10), -1, 8, 0);
+	circle(new_image, Point(420,180), 5, Scalar(181, 186, 10), -1, 8, 0);
+	circle(new_image, Point(220,300), 5, Scalar(181, 186, 10), -1, 8, 0);
+	circle(new_image, Point(420,300), 5, Scalar(181, 186, 10), -1, 8, 0);
+	*/
+
+	imshow("Draw ROI", new_image);
+	
+	//set ROI on image
+	//Mat roi_image(*image, roi);
+	//imshow("ROI Depth Image", roi_image);
+
+}

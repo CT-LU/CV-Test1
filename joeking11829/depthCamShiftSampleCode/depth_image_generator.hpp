@@ -14,6 +14,6 @@ int getDepthImage(VideoCapture capture, Mat *image);
 
 int filterDepthImage(Mat *image, int start_depth, int end_depth);
 
-
+int setDepthImageROI(Mat *image, int x, int y, int width, int height);
 
 
