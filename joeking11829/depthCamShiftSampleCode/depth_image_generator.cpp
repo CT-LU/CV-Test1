@@ -65,6 +65,10 @@ int filterDepthImage(Mat *image, int start_depth, int end_depth){
 	threshold(*image, *image, start_depth, 255, THRESH_TOZERO);
 	threshold(*image, *image, end_depth, 255, THRESH_TOZERO_INV);
 
+	//Dilate it
+	//Mat dilate_element(10, 10, CV_8U, Scalar(1));
+	//dilate(*image, *image, dilate_element, Point(-1, -1), 3);
+
 	adaptiveThreshold(*image, *image, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 3, -3);
 
 	//imshow( "threshold depth map", image );
@@ -72,6 +76,22 @@ int filterDepthImage(Mat *image, int start_depth, int end_depth){
 	return 0;
 }
 
+int filterDepthImage(Mat *src_image, Mat *dst_image, int start_depth, int end_depth){
+	
+	//Joe add threshold
+	threshold(*src_image, *dst_image, start_depth, 255, THRESH_TOZERO);
+	threshold(*dst_image, *dst_image, end_depth, 255, THRESH_TOZERO_INV);
+	
+	//Dilate it
+	//Mat dilate_element(10, 10, CV_8U, Scalar(1));
+	//dilate(*dst_image, *dst_image, dilate_element, Point(-1, -1), 3);
+
+	adaptiveThreshold(*dst_image, *dst_image, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 3, -3);
+
+	//imshow( "threshold depth map", image );
+
+	return 0;
+}
 
 int setDepthImageROI(Mat *image, int x, int y, int width, int height){
 	
