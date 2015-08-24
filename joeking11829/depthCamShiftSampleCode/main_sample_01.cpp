@@ -55,14 +55,14 @@ int main(int argc, char** argv){
 	int source_image_height = 480;
 
 	//ROI Rect
-	int roi_rect_width = source_image_width * 0.5;
+	int roi_rect_width = source_image_width * 0.6;
 	int roi_rect_height = source_image_height * 0.5;
 	int roi_rect_start_x = (source_image_width - roi_rect_width) * 0.5 ;
 	int roi_rect_start_y = (source_image_height - roi_rect_height) * 0.5;
 
 	//ROI to Right
 	int roi_to_right_width = roi_rect_height * 0.32;
-	int roi_to_right_height = roi_rect_height * 0.75;
+	int roi_to_right_height = roi_rect_height * 1.0;
 	int roi_to_right_start_x = roi_rect_start_x;
 	int roi_to_right_start_y = roi_rect_start_y + ((roi_rect_height - roi_to_right_height) * 0.5);
 	
@@ -119,8 +119,9 @@ int main(int argc, char** argv){
 	setUserInterface();
 
 	//condition
-	int area_threshold = 500;
-	int area_tracking_object = 500;
+	int area_threshold = 10;
+	int area_tracking_object = 250;
+
 
 	for(;;)
 	{
@@ -128,7 +129,7 @@ int main(int argc, char** argv){
 		getDepthImage(capture, &image);
 
 		//filterDepthImage
-		filterDepthImage(&image, (int)40, (int)50);
+		filterDepthImage(&image, (int)10, (int)40);
 
 		//show depth image
 		//imshow("Main Program for Depth Camera", image);
@@ -151,14 +152,18 @@ int main(int argc, char** argv){
 		//draw Contours
 		drawing = Mat::zeros(image.size(), CV_8UC3);
 		drawContours(&drawing, &contours, &hierarchy, CV_FILLED, largest_contour_index, area_threshold);
+		
 
-		//imshow("drawContours", drawing);
+		//Dilate
+		Mat dilate_element(10, 10, CV_8U, Scalar(1));
+        	dilate(drawing, drawing, dilate_element, Point(-1, -1), 3);
+		imshow("Origin drawContours", drawing);
 
 		//Using CamShift tracking Object
 		//CamShift
 		//cout << "Area of largest contour: " << contourArea(contours[largest_contour_index]) << endl;
 
-		if( largest_contour_index != -1 && contourArea(contours[largest_contour_index]) >= area_tracking_object){
+		if( largest_contour_index != -1 && contourArea(contours[largest_contour_index]) >= area_threshold ){
 			//Color space transform -> from BGR to HSV	
 			cvtColor(drawing, hsv, COLOR_BGR2HSV);
 
@@ -171,6 +176,12 @@ int main(int argc, char** argv){
 			mixChannels(&hsv, 1, &hue, 1, ch, 1);
 
 			if(change_object){
+				
+				//if area of contour is too small then using next frame
+				if(contourArea(contours[largest_contour_index]) <= area_tracking_object )
+				{
+					continue;
+				}
 
 				//reset histogram input for CamShift
 				//change flag
