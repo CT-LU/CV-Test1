@@ -15,8 +15,9 @@ int main( int argc, char** argv )
    	Mat clone_src_gray2; // used in implementing Sobel operation
 	
 	int GaussianKernel[5][5];
-	double  n, pdf_0, pdf_1, pdf_2, mean_num, pi = 3.14159;
-    
+	double n, pdf_0, pdf_1, pdf_2, pi = 3.14159;
+   	double mean_num;
+
 	cout << "*****************************************************************" << endl;	
 	cout << "the used Gaussian distribution: sigma = 1, mean value = 0 " << endl;
 	cout << "*****************************************************************" << endl;	
@@ -29,8 +30,9 @@ int main( int argc, char** argv )
 	cout << "pdf_2 = " << pdf_2 << endl;
 	cout << "*****************************************************************" << endl;	
 
-	cout << "please enter the numbers in the location of mean : " ;
-	cin >> mean_num;
+	mean_num = atoi(argv[2]);
+	//cout << "please enter the numbers in the location of mean : " ;
+	//cin >> mean_num;
 
 	GaussianKernel[2][2] = mean_num;
 	GaussianKernel[1][2] = mean_num/pdf_0*pdf_1;
