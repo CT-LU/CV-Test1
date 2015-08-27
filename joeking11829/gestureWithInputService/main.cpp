@@ -24,7 +24,7 @@ enum GESTURE_COMMAND {
 	RIGHT,
 	UP,
 	DOWN
-}
+};
 
 /**
 	Handle Ctrl+C Event in Linux
