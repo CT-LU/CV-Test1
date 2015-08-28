@@ -6,6 +6,8 @@
 #include "depth_image_generator.hpp"
 #include "contours_operator.hpp"
 #include <signal.h>
+#include <syslog.h>
+
 extern "C" {
 #include "input_inf.h"
 };
@@ -16,6 +18,9 @@ extern "C" {
 
 using namespace cv;
 using namespace std;
+
+#define START_DEPTH 65
+#define END_DEPTH 80
 
 //Gesture Command Type
 enum GESTURE_COMMAND {
@@ -33,6 +38,7 @@ void handleSig(int signo)
 {
 	if (signo == SIGINT) {
 		cout << "received SIGINT, exiting..." << endl;
+		syslog(LOG_INFO, "Gesture received SIGINT exiting...");
 		//if (isBackground()) syslog(LOG_INFO, "received SIGINT, exiting...");
 		//shutdown InputService Interface
 		shutdownInterface();
@@ -40,6 +46,7 @@ void handleSig(int signo)
 	}
 	if (signo == SIGUSR1) {
 		cout << "received SIGUSR1, exiting..." << endl;
+		syslog(LOG_INFO, "Gesture received SIGUSR1 exiting...");
 		//if (isBackground()) syslog(LOG_INFO, "received SIGUSR1, exiting...");
 		//shutdown InputService Interface
 		shutdownInterface();
@@ -52,6 +59,9 @@ int main(int argc, char** argv){
 
 	//initial SIG variable
 	struct sigaction sigIntHandler;
+	
+	//initial syslog
+	openlog("gesture-aue", LOG_PID | LOG_CONS, LOG_USER);
 
 	VideoCapture capture;
 	Mat image, drawing, mask;
@@ -88,9 +98,11 @@ int main(int argc, char** argv){
 	if(getDepthCamera(&capture) == -1)
 	{
 		cout << "Open Depth Camera Failed !!" << endl;
+		syslog(LOG_ERR, "Open Depth Camera Failed !!");
 		return -1;
 	}else{
 		cout << "Depth Camera Open Succeed !!" << endl;
+		syslog(LOG_INFO, "Depth Camera Open Succeed !!");
 	}
 
 
@@ -98,6 +110,7 @@ int main(int argc, char** argv){
 	DEV_TYPE input_type = GESTURE;
 	if( initInterface(input_type) != SUCCESS ){
 		cout << "Error!! initInterface failure!" << endl;
+		syslog(LOG_ERR, "Gesture -> do inputservice initInterface failure!");
 		return -1;
 	}
 
@@ -107,9 +120,11 @@ int main(int argc, char** argv){
 	sigIntHandler.sa_flags = 0;
 	if (sigaction(SIGINT, &sigIntHandler, NULL) != 0) {
 		cout << "can't catch SIGINT" << endl;
+		syslog(LOG_ERR, "Gesture can't catch SIGINT");
 	}
 	if (sigaction(SIGUSR1, &sigIntHandler, NULL) != 0) {
 		cout << "can't catch SIGUSR1" << endl;
+		syslog(LOG_ERR, "Gesture can't catch SIGUSR1");
 	}
 
 
@@ -123,7 +138,7 @@ int main(int argc, char** argv){
 		//imshow("Source", image);
 
 		//filterDepthImage
-		filterDepthImage(&image, &image, (int)65, (int)80);
+		filterDepthImage(&image, &image, START_DEPTH, END_DEPTH);  //(int)65, (int)80
 
 		//show depth image
 		//imshow("Main Program for Depth Camera", image);
@@ -231,26 +246,34 @@ int main(int argc, char** argv){
 				case RIGHT:
 					//Trigger Right Command
 					cout << "Trigger RIGHT RIGHT RIGHT RIGHT !!!!" << endl;
+					syslog(LOG_INFO, "Trigger RIGHT RIGHT RIGHT RIGHT !!!!");
 					//Do InputService key command
 					sendMsg(KEY_MSG, "Right");
+					syslog(LOG_INFO, "Gesture sendMsg(Right) to inputservice !");
 					break;
 				case LEFT:
 					//Trigger Left Command
 					cout << "Trigger LEFT LEFT LEFT LEFT !!!!" << endl;
+					syslog(LOG_INFO, "Trigger LEFT LEFT LEFT LEFT !!!!");
 					//Do InputService key command
 					sendMsg(KEY_MSG, "Left");
+					syslog(LOG_INFO, "Gesture snedMsg(Left) to inputservice !");
 					break;
 				case UP:	
 					//Trigger Up Command
 					cout << "Trigger UP UP UP UP !!!!" << endl;
+					syslog(LOG_INFO, "Trigger UP UP UP UP !!!!");
 					//Do InputService key command
 					sendMsg(KEY_MSG, "Up");
+					syslog(LOG_INFO, "Gesture snedMsg(Up) to inputservice !");
 					break;
 				case DOWN:
 					//Trigger Down Command
 					cout << "Trigger DOWN DOWN DOWN DOWN !!!!" << endl;
+					syslog(LOG_INFO, "Trigger DOWN DOWN DOWN DOWN !!!!");
 					//Do InputService key command
 					sendMsg(KEY_MSG, "Down");
+					syslog(LOG_INFO, "Gesture snedMsg(Down) to inputservice !");
 					break;
 
 			}
