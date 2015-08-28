@@ -42,6 +42,8 @@ void handleSig(int signo)
 		//if (isBackground()) syslog(LOG_INFO, "received SIGINT, exiting...");
 		//shutdown InputService Interface
 		shutdownInterface();
+		//close syslog
+		closelog();
 		exit(0);
 	}
 	if (signo == SIGUSR1) {
@@ -50,6 +52,8 @@ void handleSig(int signo)
 		//if (isBackground()) syslog(LOG_INFO, "received SIGUSR1, exiting...");
 		//shutdown InputService Interface
 		shutdownInterface();
+		//close syslog
+		closelog();
 		exit(0);
 	}
 }
@@ -312,6 +316,8 @@ int main(int argc, char** argv){
 
 	//shutdown InputService Interface
 	shutdownInterface();
+	//close syslog
+	closelog();
 	
 	return 0;
 }
