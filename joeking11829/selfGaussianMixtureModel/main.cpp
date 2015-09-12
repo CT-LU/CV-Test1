@@ -16,11 +16,11 @@ using namespace std;
 
 //GMM parameter
 const double pi = 3.14159;
-const double alpha = 0.02;
+const double alpha = 0.00005;
 const double def_covariance = 11.0;
 const double covariance_threshold = (2.5*2.5);
-const double def_weight = 0.02;
-const int max_number_of_gaussian_components = 4;
+const double def_weight = 0.00005;
+const int max_number_of_gaussian_components = 3;
 
 //Data Structure for GMM
 struct gaussian_model
@@ -61,7 +61,7 @@ void deleteGaussianComponent();
 pixel_gmm_node* createNodeForPixel(double blue_value, double green_value, double red_value)
 {
 	pixel_gmm_node* pixel_node = new pixel_gmm_node;
-	
+
 	if(pixel_node != NULL)
 	{
 		//Node create succeed
@@ -78,7 +78,7 @@ pixel_gmm_node* createNodeForPixel(double blue_value, double green_value, double
 gaussian_model* createGaussianComponentForPixel(double blue_value, double green_value, double red_value)
 {
 	gaussian_model* gaussian_component = new gaussian_model;
-	
+
 	if(gaussian_component != NULL)
 	{
 		//Gaussian Component create succeed
@@ -133,29 +133,29 @@ int main(int argc, char** argv){
 
 	VideoCapture cap;
 	Mat frame, gmm_frame;
-	
+
 	/*
 	//getDepthCamera
 	if(getDepthCamera(&capture) == -1)
 	{
-		cout << "Open Depth Camera Failed !!" << endl;
-		syslog(LOG_ERR, "Open Depth Camera Failed !!");
-		return -1;
+	cout << "Open Depth Camera Failed !!" << endl;
+	syslog(LOG_ERR, "Open Depth Camera Failed !!");
+	return -1;
 	}else{
-		cout << "Depth Camera Open Succeed !!" << endl;
-		syslog(LOG_INFO, "Depth Camera Open Succeed !!");
+	cout << "Depth Camera Open Succeed !!" << endl;
+	syslog(LOG_INFO, "Depth Camera Open Succeed !!");
 	}
-	*/
+	 */
 
 	//Open RGB Camera
 	cap.open(0);
-	
+
 	if( !cap.isOpened() )
 	{
 		cout << "Can not open camera !!" << endl;
 		return -1;
 	}
-	
+
 	//read frame
 	cap >> frame;
 	if( frame.empty() )
@@ -168,7 +168,7 @@ int main(int argc, char** argv){
 	uchar* row_ptr;
 	uchar* output_row_ptr;
 	pixel_gmm_node* tmp_node = NULL;
-	
+
 
 	//Loop parameter
 	int i, j, k, sort;
@@ -214,7 +214,7 @@ int main(int argc, char** argv){
 	double red_diff = 0.0;
 	double sum_of_square_diff = 0.0;
 	double covariance_runtime = 0.0;
-	
+
 	int count_frame = 0;
 
 	for(;;)
@@ -225,7 +225,7 @@ int main(int argc, char** argv){
 		{
 			break;
 		}
-		
+
 		//debug
 		//imshow("Source", frame);
 
@@ -242,7 +242,7 @@ int main(int argc, char** argv){
 			row_ptr = frame.ptr(i);
 			//get buffer for rows in output frame
 			output_row_ptr = gmm_frame.ptr(i);
-			
+
 			//Handle every pixel in one row
 			for( j = 0; j < buffer_limited; j += 3)
 			{
@@ -255,7 +255,7 @@ int main(int argc, char** argv){
 				blue_value = *(row_ptr++);
 				green_value = *(row_ptr++);
 				red_value = *(row_ptr++);
-				
+
 				//set GMM point
 				gaussian_start = pixel_node_runtime->gaussian_component_start;
 				gaussian_rear = pixel_node_runtime->gaussian_component_rear;
@@ -264,69 +264,73 @@ int main(int argc, char** argv){
 				//Macthing current pixel for GMM
 				for( k = 0; k < pixel_node_runtime->number_of_gaussian_components; k++  )
 				{
-					//get sum of weight
-					//sum_of_weight += gaussian_runtime->weight;
 
-					//Handle matching for each Gaussian Component
-					blue_mean = gaussian_runtime->b_mean;
-					green_mean = gaussian_runtime->g_mean;
-					red_mean = gaussian_runtime->r_mean;
+					if(!isMatch){
+						//Handle matching for each Gaussian Component
+						blue_mean = gaussian_runtime->b_mean;
+						green_mean = gaussian_runtime->g_mean;
+						red_mean = gaussian_runtime->r_mean;
 
-					//get diff
-					blue_diff = blue_value - blue_mean;
-					green_diff = green_value - green_mean;
-					red_diff = red_value - red_mean;
-
-					//get covariance for current gaussian model
-					covariance_runtime = gaussian_runtime->covariance;
-					
-					//get sum of square diff for BGR
-					sum_of_square_diff = (blue_diff*blue_diff + green_diff*green_diff + red_diff*red_diff);
-
-					//Add Judgement for "sum of weight"
-					//
-
-					//judge match or unmatch for current gaussian component
-					if( sum_of_square_diff <= (covariance_threshold*covariance_runtime*covariance_runtime) )
-					{
-						//Match current Gaussian component
-						//Update weight
-						weight_runtime = (1-alpha)*(gaussian_runtime->weight) + alpha;
-
-						//Update Gaussian Component
-						//Update mean
-						blue_mean = blue_mean + alpha*blue_diff;
-						green_mean = green_mean + alpha*green_diff;
-						red_mean = red_mean + alpha*red_diff;
-						
-						//get new diff
+						//get diff
 						blue_diff = blue_value - blue_mean;
 						green_diff = green_value - green_mean;
 						red_diff = red_value - red_mean;
 
-						//update new sum of square_diff	
+						//get covariance for current gaussian model
+						covariance_runtime = gaussian_runtime->covariance;
+
+						//get sum of square diff for BGR
 						sum_of_square_diff = (blue_diff*blue_diff + green_diff*green_diff + red_diff*red_diff);
 
-						//Update covariance let Rho = alpha
-						covariance_runtime = sqrt(covariance_runtime*covariance_runtime + alpha*(sum_of_square_diff - covariance_runtime*covariance_runtime));
+						//judge match or unmatch for current gaussian component
+						if( sum_of_square_diff <= (covariance_threshold*covariance_runtime*covariance_runtime) )
+						{
+							//Match current Gaussian component
+							//Update weight
+							gaussian_runtime->weight = weight_runtime = (1-alpha)*(gaussian_runtime->weight) + alpha;
 
-						//Set match flag
-						isMatch = true;
-						//Set background flag
-						isBackground = true;
+							//Update Gaussian Component
+							//Update mean
+							gaussian_runtime->b_mean = blue_mean = blue_mean + alpha*blue_diff;
+							gaussian_runtime->g_mean = green_mean = green_mean + alpha*green_diff;
+							gaussian_runtime->r_mean = red_mean = red_mean + alpha*red_diff;
 
-						//Update data to Match Gaussian Component
-						gaussian_runtime->weight = weight_runtime;
-						gaussian_runtime->b_mean = blue_mean;
-						gaussian_runtime->g_mean = green_mean;
-						gaussian_runtime->r_mean = red_mean;
-						gaussian_runtime->covariance = covariance_runtime;
+							//get new diff
+							blue_diff = blue_value - blue_mean;
+							green_diff = green_value - green_mean;
+							red_diff = red_value - red_mean;
+
+							//update new sum of square_diff	
+							sum_of_square_diff = (blue_diff*blue_diff + green_diff*green_diff + red_diff*red_diff);
+
+							//Update covariance let Rho = alpha
+							gaussian_runtime->covariance = covariance_runtime = covariance_runtime + alpha*(sum_of_square_diff - covariance_runtime);
+
+							//Set match flag
+							isMatch = true;
+							//Set background flag
+							isBackground = true;
+
+							//Update data to Match Gaussian Component
+							//gaussian_runtime->weight = weight_runtime;
+							//gaussian_runtime->b_mean = blue_mean;
+							//gaussian_runtime->g_mean = green_mean;
+							//gaussian_runtime->r_mean = red_mean;
+							//gaussian_runtime->covariance = covariance_runtime;
+						}else{
+							//UnMatch current Gaussian component
+							gaussian_runtime->wieght = weight_runtime = (1-alpha)*(gaussian_runtime->weight);
+
+							//Update data to UnMatch Gaussian Component
+							//gaussian_runtime->weight = weight_runtime;
+						}
+
 					}else{
 						//UnMatch current Gaussian component
-						weight_runtime = (1-alpha)*(gaussian_runtime->weight) + alpha;
-						
+						gaussian_runtime->weight = weight_runtime = (1-alpha)*(gaussian_runtime->weight);
+
 						//Update data to UnMatch Gaussian Component
-						gaussian_runtime->weight = weight_runtime;
+						//gaussian_runtime->weight = weight_runtime;
 					}
 
 					//get sum of weight
@@ -335,31 +339,31 @@ int main(int argc, char** argv){
 					//matching next Gaussian component
 					gaussian_runtime = gaussian_runtime->next;
 				}
-				
+
 				//if there is no match in GMM, delete the least weight gaussian component
 				if(!isMatch)
 				{
 					//Create new Gaussian component
 					gaussian_runtime = createGaussianComponentForPixel(blue_value, green_value, red_value);
 					/*
-					gaussian_runtime = new gaussian_model;
-					gaussian_runtime->weight = def_weight;
-					gaussian_runtime->b_mean = blue_value;
-					gaussian_runtime->g_mean = green_value;
-					gaussian_runtime->r_mean = red_value;
-					gaussian_runtime->covariance = def_covariance;
-					gaussian_runtime->next = NULL;
-					gaussian_runtime->previous = NULL;
-					*/
+					   gaussian_runtime = new gaussian_model;
+					   gaussian_runtime->weight = def_weight;
+					   gaussian_runtime->b_mean = blue_value;
+					   gaussian_runtime->g_mean = green_value;
+					   gaussian_runtime->r_mean = red_value;
+					   gaussian_runtime->covariance = def_covariance;
+					   gaussian_runtime->next = NULL;
+					   gaussian_runtime->previous = NULL;
+					 */
 
 					//Delete the least weight of Gaussian component and Add the new Gaussian component to GMM
 					//Delete the least weight of Gaussian component if number of Gaussian components is not reach to the maximun number
-					if(pixel_node_runtime->number_of_gaussian_components < max_number_of_gaussian_components)
+					if(pixel_node_runtime->number_of_gaussian_components <= max_number_of_gaussian_components)
 					{
 						//Not reach the Maxmium yet.
 						//add new Gaussian component to current pixel's GMM
 						insertGaussianComponent(gaussian_runtime);
-						
+
 						//increase number of gaussian component
 						pixel_node_runtime->number_of_gaussian_components += 1;
 						//update pixel_node_runtime information
@@ -387,8 +391,8 @@ int main(int argc, char** argv){
 						sum_of_weight += gaussian_runtime->weight;
 					}
 				}
-				
-				
+
+
 				//normalize the sum of weight to 1, if sum of weight < 0.9 or sum of weight > 1.2
 				//do normalization
 				if(sum_of_weight < 0.9 || sum_of_weight > 1.2)
@@ -406,7 +410,7 @@ int main(int argc, char** argv){
 				//reorder by weight/covariance with Bubble sort
 
 				//cout << "Current Number of Gaussian Components:" << pixel_node_runtime->number_of_gaussian_components << endl;
-
+				/*
 				for( sort = 0; sort < pixel_node_runtime->number_of_gaussian_components; sort++)
 				{
 					gaussian_runtime = gaussian_start;
@@ -417,39 +421,24 @@ int main(int argc, char** argv){
 							//Not the end of linked list
 							double weight_01 = (gaussian_runtime->weight)/(gaussian_runtime->covariance);
 							double weight_02 = (gaussian_runtime->next->weight)/(gaussian_runtime->next->covariance);
-							
+
 							if(weight_01 < weight_02){
 								//change order
 								gaussian_tmp_runtime = gaussian_runtime->next;
-								
-								/*
-								if(gaussian_runtime == gaussian_start)
-								{
-									//the first gaussian component need to be exchanged
-									gaussian_start = gaussian_tmp_runtime;
-									pixel_node_runtime->gaussian_component_start = gaussian_start;
-								}
-								if(gaussian_runtime->next == gaussian_rear)
-								{
-									//the last gaussian component need to be exchanged
-									gaussian_rear = gaussian_runtime;
-									pixel_node_runtime->gaussian_component_rear = gaussian_rear;
-								}
-								*/
 
 								//Linked List exchange !!
 								if(gaussian_runtime->next == gaussian_rear){
 									//the last gaussian component need to be exchanged
 									gaussian_rear = gaussian_runtime;
 									pixel_node_runtime->gaussian_component_rear = gaussian_rear;
-									
+
 									gaussian_runtime->next = NULL;
 								}else{
 									gaussian_runtime->next = gaussian_tmp_runtime->next;
 									gaussian_runtime->next->previous = gaussian_runtime;
 								}
 								gaussian_tmp_runtime->next = gaussian_runtime;
-								
+
 								if(gaussian_runtime == gaussian_start){
 									//the first gaussian component need to be exchanged
 									gaussian_start = gaussian_tmp_runtime;
@@ -463,15 +452,16 @@ int main(int argc, char** argv){
 
 								gaussian_runtime->previous = gaussian_tmp_runtime;
 								gaussian_runtime = gaussian_tmp_runtime;
-								
+
 							}
-							
+
 						}
 						//next loop
 						gaussian_runtime = gaussian_runtime->next;
 					}
 				}
-				
+				*/
+
 				//update pixel_node_runtime information
 				//pixel_node_runtime->gaussian_component_start = gaussian_start;
 				//pixel_node_runtime->gaussian_component_rear = gaussian_rear;
@@ -492,10 +482,10 @@ int main(int argc, char** argv){
 			}
 			//LOOP: go to next row
 		}
-		
+
 		count_frame++;
-		cout << "Number of Frame is :" << count_frame << endl;
-		
+		//cout << "Number of Frame is :" << count_frame << endl;
+
 		//Show the GMM result image
 		imshow("GMM", gmm_frame);
 
