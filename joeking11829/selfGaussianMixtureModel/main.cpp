@@ -45,7 +45,7 @@ struct pixel_gmm_node
 
 //Global Variable
 pixel_gmm_node *pixel_node_start, *pixel_node_rear, *pixel_node_runtime;
-gaussian_model *gaussian_start, *gaussian_rear, *gaussian_runtime, *gaussian_tmp_runtime;
+gaussian_model *gaussian_start, *gaussian_rear, *gaussian_runtime, *gaussian_reorder_runtime, *gaussian_tmp_runtime;
 
 
 //Functions for GMM
@@ -311,6 +311,9 @@ int main(int argc, char** argv){
 							//Set background flag
 							isBackground = true;
 
+							//set reorder runtime
+							gaussian_reorder_runtime = gaussian_runtime;
+
 							//Update data to Match Gaussian Component
 							//gaussian_runtime->weight = weight_runtime;
 							//gaussian_runtime->b_mean = blue_mean;
@@ -319,7 +322,7 @@ int main(int argc, char** argv){
 							//gaussian_runtime->covariance = covariance_runtime;
 						}else{
 							//UnMatch current Gaussian component
-							gaussian_runtime->wieght = weight_runtime = (1-alpha)*(gaussian_runtime->weight);
+							gaussian_runtime->weight = weight_runtime = (1-alpha)*(gaussian_runtime->weight);
 
 							//Update data to UnMatch Gaussian Component
 							//gaussian_runtime->weight = weight_runtime;
@@ -390,6 +393,9 @@ int main(int argc, char** argv){
 						//record the new sum of weight
 						sum_of_weight += gaussian_runtime->weight;
 					}
+
+					//set reorder runtime
+					gaussian_reorder_runtime = pixel_node_runtime->gaussian_component_rear;
 				}
 
 
@@ -408,63 +414,51 @@ int main(int argc, char** argv){
 
 				//reorder Gaussian components for current pixel's GMM
 				//reorder by weight/covariance with Bubble sort
-
-				//cout << "Current Number of Gaussian Components:" << pixel_node_runtime->number_of_gaussian_components << endl;
-				/*
-				for( sort = 0; sort < pixel_node_runtime->number_of_gaussian_components; sort++)
+				
+				// 1. Reorder weight/covariance
+				gaussian_runtime = gaussian_reorder_runtime;  //for Match or UnMatch
+				while(gaussian_runtime->previous != NULL)
 				{
-					gaussian_runtime = gaussian_start;
-					while(gaussian_runtime != NULL)
+					if( (gaussian_runtime->weight/gaussian_runtime->covariance) > (gaussian_runtime->previous->weight/gaussian_runtime->previous->covariance) )
 					{
-						if(gaussian_runtime->next != NULL)
+						//need to change order
+						//consider first and last component need to be changed
+						gaussian_tmp_runtime = gaussian_runtime->previous;
+						
+						gaussian_tmp_runtime->next = gaussian_runtime->next;
+						gaussian_runtime->previous = gaussian_tmp_runtime->previous;
+						gaussian_runtime->next = gaussian_tmp_runtime;
+						if(gaussian_tmp_runtime->previous != NULL)
 						{
-							//Not the end of linked list
-							double weight_01 = (gaussian_runtime->weight)/(gaussian_runtime->covariance);
-							double weight_02 = (gaussian_runtime->next->weight)/(gaussian_runtime->next->covariance);
-
-							if(weight_01 < weight_02){
-								//change order
-								gaussian_tmp_runtime = gaussian_runtime->next;
-
-								//Linked List exchange !!
-								if(gaussian_runtime->next == gaussian_rear){
-									//the last gaussian component need to be exchanged
-									gaussian_rear = gaussian_runtime;
-									pixel_node_runtime->gaussian_component_rear = gaussian_rear;
-
-									gaussian_runtime->next = NULL;
-								}else{
-									gaussian_runtime->next = gaussian_tmp_runtime->next;
-									gaussian_runtime->next->previous = gaussian_runtime;
-								}
-								gaussian_tmp_runtime->next = gaussian_runtime;
-
-								if(gaussian_runtime == gaussian_start){
-									//the first gaussian component need to be exchanged
-									gaussian_start = gaussian_tmp_runtime;
-									pixel_node_runtime->gaussian_component_start = gaussian_start;
-
-									gaussian_tmp_runtime->previous = NULL;
-								}else{
-									gaussian_tmp_runtime->previous = gaussian_runtime->previous;
-									gaussian_tmp_runtime->previous->next = gaussian_tmp_runtime;
-								}
-
-								gaussian_runtime->previous = gaussian_tmp_runtime;
-								gaussian_runtime = gaussian_tmp_runtime;
-
-							}
-
+							gaussian_tmp_runtime->previous->next = gaussian_runtime;
 						}
-						//next loop
-						gaussian_runtime = gaussian_runtime->next;
+						gaussian_tmp_runtime->previous = gaussian_runtime;
+						if(gaussian_tmp_runtime->next != NULL)
+						{
+							gaussian_tmp_runtime->next->previous = gaussian_tmp_runtime;
+						}
+						
+					}else{
+						//end reorder
+						break;
 					}
 				}
-				*/
+				// 2. fine new gaussian_start and gaussian_rear
+				gaussian_runtime = gaussian_start;
+				while(gaussian_runtime->previous != NULL)
+				{
+					gaussian_runtime = gaussian_start = gaussian_runtime->previous;
+				}
+				gaussian_runtime = gaussian_rear;
+				while(gaussian_runtime->next != NULL)
+				{
+					gaussian_runtime = gaussian_rear = gaussian_runtime->next;
+				}
 
+				
 				//update pixel_node_runtime information
-				//pixel_node_runtime->gaussian_component_start = gaussian_start;
-				//pixel_node_runtime->gaussian_component_rear = gaussian_rear;
+				pixel_node_runtime->gaussian_component_start = gaussian_start;
+				pixel_node_runtime->gaussian_component_rear = gaussian_rear;
 
 				//judge foreground or background for current pixel and set the result to the gmm_frame
 				if(isBackground){
