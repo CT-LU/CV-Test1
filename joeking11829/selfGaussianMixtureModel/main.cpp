@@ -314,26 +314,14 @@ int main(int argc, char** argv){
 							//set reorder runtime
 							gaussian_reorder_runtime = gaussian_runtime;
 
-							//Update data to Match Gaussian Component
-							//gaussian_runtime->weight = weight_runtime;
-							//gaussian_runtime->b_mean = blue_mean;
-							//gaussian_runtime->g_mean = green_mean;
-							//gaussian_runtime->r_mean = red_mean;
-							//gaussian_runtime->covariance = covariance_runtime;
 						}else{
 							//UnMatch current Gaussian component
 							gaussian_runtime->weight = weight_runtime = (1-alpha)*(gaussian_runtime->weight);
 
-							//Update data to UnMatch Gaussian Component
-							//gaussian_runtime->weight = weight_runtime;
 						}
-
 					}else{
 						//UnMatch current Gaussian component
 						gaussian_runtime->weight = weight_runtime = (1-alpha)*(gaussian_runtime->weight);
-
-						//Update data to UnMatch Gaussian Component
-						//gaussian_runtime->weight = weight_runtime;
 					}
 
 					//get sum of weight
@@ -348,17 +336,6 @@ int main(int argc, char** argv){
 				{
 					//Create new Gaussian component
 					gaussian_runtime = createGaussianComponentForPixel(blue_value, green_value, red_value);
-					/*
-					   gaussian_runtime = new gaussian_model;
-					   gaussian_runtime->weight = def_weight;
-					   gaussian_runtime->b_mean = blue_value;
-					   gaussian_runtime->g_mean = green_value;
-					   gaussian_runtime->r_mean = red_value;
-					   gaussian_runtime->covariance = def_covariance;
-					   gaussian_runtime->next = NULL;
-					   gaussian_runtime->previous = NULL;
-					 */
-
 					//Delete the least weight of Gaussian component and Add the new Gaussian component to GMM
 					//Delete the least weight of Gaussian component if number of Gaussian components is not reach to the maximun number
 					if(pixel_node_runtime->number_of_gaussian_components <= max_number_of_gaussian_components)
@@ -443,7 +420,7 @@ int main(int argc, char** argv){
 						break;
 					}
 				}
-				// 2. fine new gaussian_start and gaussian_rear
+				// 2. find new gaussian_start and gaussian_rear
 				gaussian_runtime = gaussian_start;
 				while(gaussian_runtime->previous != NULL)
 				{
