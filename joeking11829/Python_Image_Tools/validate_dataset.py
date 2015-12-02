@@ -50,6 +50,9 @@ class dataset_validater(object):
         #Get Image list
         image_list = [line.strip() for line in open(self._trainval_file, 'r')]
         print 'image_list: {}'.format(image_list)
+        
+        #Store image name to delete
+        delete_image_list = []
 
         #Read Image by filename
         for image_name in image_list:
@@ -110,13 +113,39 @@ class dataset_validater(object):
             key_code = cv2.waitKey(0)
             #Add OpenCV Key Control Flow
             if key_code == ord('n'):
-                continue;
+                continue
+            elif key_code == ord('d'):
+                #Delete current data
+                try:
+                    #Remove Image
+                    print 'Remove Image: {}'.format(image_path)
+                    os.remove(image_path)
+                    #Remove Annotation
+                    print 'Remove Annotation: {}'.format(annotation_path)
+                    os.remove(annotation_path)
+                except OSError:
+                    pass
+                #Remove filename in trainval.txt
+                delete_image_list.append(image_name)
             elif key_code == 27:
                 print 'Terminate the Program !!'
-                break;
+                break
             #...................................
 
+        #Save new trainval.txt after delete images
+        if delete_image_list:
+            #Delete image exists
+            #Rename Old trainval.txt to trainval.txt.backup
+            os.rename(self._trainval_file, self._trainval_file + '.backup')
+            #Save new trainval.txt without image names which are deleted
+            with open(self._trainval_file + '.backup', 'r') as old_trainval, open(self._trainval_file, 'w+') as new_trainval:
+                #filter
+                for image_name in old_trainval:
+                    if not any(delete_image in image_name for delete_image in delete_image_list):
+                        #Write image name to new trainval
+                        new_trainval.write(image_name)
         
+
         #Release OpenCV Object
         cv2.destroyAllWindows()
 
