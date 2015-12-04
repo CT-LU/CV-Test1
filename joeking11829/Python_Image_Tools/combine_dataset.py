@@ -88,7 +88,7 @@ class dataset_combinator(object):
                 
                 #Ouput Path
                 output_image = osp.join(self._image_path, image_name + self._image_ext)
-                output_annotation = osp.join(self._annotation_path, image_name + 'xml')
+                output_annotation = osp.join(self._annotation_path, image_name + '.xml')
                 
                 #Copy
                 shu.copy(image, output_image)
