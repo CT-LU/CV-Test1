@@ -13,9 +13,9 @@ int getDepthCamera(VideoCapture* capture){
 
 	cout << "Depth Device opening ..." << endl;
 
-	capture->open( CAP_OPENNI2 );
+	capture->open( CAP_OPENNI2_ASUS );
 	if( !capture->isOpened() )
-		capture->open( CAP_OPENNI );
+		capture->open( CAP_OPENNI_ASUS );
 
 
 	cout << "done." << endl;

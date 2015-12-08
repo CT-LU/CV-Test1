@@ -37,6 +37,11 @@ int main(int argc, char** argv){
 	//Open RGB Camera One
 	//cap_one.open(0);
 	VideoCapture cap_one(0);
+    
+    //get VideoCapture Config
+    //cap_one.set(3, 1280);
+    //cap_one.set(4, 720);
+    cout << "Camera  Width: " << cap_one.get(3) << "  Height: " << cap_one.get(4) << endl;
 
 	if( !cap_one.isOpened() )
 	{
@@ -73,12 +78,14 @@ int main(int argc, char** argv){
 	*/
 
 	//Open Depth Camera
+    /*
 	VideoCapture cap_depth;
 	if(getDepthCamera(&cap_depth) == -1)
 	{
 		cout << "Open Depth Camera Failed !!" << endl;
 		return -1;
 	}
+    */
 
 
 	for(;;)
@@ -108,8 +115,8 @@ int main(int argc, char** argv){
 		//imshow("Source Two", frame_two);
 
 		//Get Depth Image from Depth Camera
-		getDepthImage(cap_depth, &frame_depth);
-		imshow("Source Depth", frame_depth);
+		//getDepthImage(cap_depth, &frame_depth);
+		//imshow("Source Depth", frame_depth);
 
 		//User Key Input
 		waitKey(30);

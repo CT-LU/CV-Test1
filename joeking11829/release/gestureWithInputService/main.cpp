@@ -115,7 +115,7 @@ int main(int argc, char** argv){
 	if( initInterface(input_type) != SUCCESS ){
 		cout << "Error!! initInterface failure!" << endl;
 		syslog(LOG_ERR, "Gesture -> do inputservice initInterface failure!");
-		return -1;
+		//return -1;
 	}
 
 	//handle Ctrl+C event

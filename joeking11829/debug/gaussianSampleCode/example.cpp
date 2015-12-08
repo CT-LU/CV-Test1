@@ -88,17 +88,17 @@ int main(int argc, char** argv)
 		//Erode
 		Mat elementA(2, 2, CV_8U, Scalar(1));
 		erode(bgmask, bgmask, elementA, Point(-1, -1), 1);
-		imshow("Erode", bgmask);
+		//imshow("Erode", bgmask);
 
 		//Dilate
 		Mat elementB(3, 3, CV_8U, Scalar(1));
 		dilate(bgmask, bgmask, elementB, Point(-1,-1), 4);
-		imshow("Dilate", bgmask);
+		//imshow("Dilate", bgmask);
 
 		//MorphologyEx
 		Mat elementC(1, 1, CV_8U, Scalar(1));
 		morphologyEx(bgmask, bgmask, cv::MORPH_CLOSE, elementC);
-		imshow("morph_close", bgmask);
+		//imshow("morph_close", bgmask);
 
 
 		//Canny
@@ -210,8 +210,8 @@ int main(int argc, char** argv)
 			}
 
 		}
-		imshow("Contours", drawing);
-		imshow("Hull Demo", drawing_hull);
+		//imshow("Contours", drawing);
+		//imshow("Hull Demo", drawing_hull);
 
 
 
