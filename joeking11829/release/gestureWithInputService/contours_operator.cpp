@@ -10,15 +10,15 @@ using namespace std;
 
 
 
-int getContours(Mat *image, vector< vector<Point> > *contours, vector<Vec4i> *hierarchy){
+int getContours(Mat &image, vector< vector<Point> > &contours, vector<Vec4i> &hierarchy){
 
 	//MorphologyEx
 	Mat elementA(3, 3, CV_8U, Scalar(1));
-	morphologyEx(*image, *image, cv::MORPH_CLOSE, elementA);
+	morphologyEx(image, image, cv::MORPH_CLOSE, elementA);
 
 	//findContours
 	//get Contours external
-	findContours(*image, *contours, *hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
+	findContours(image, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
 	return 0;
 }
@@ -42,24 +42,24 @@ int findLargestContourIndex(vector< vector<Point> > contours){
 	return largest_contour_index;
 }
 
-int drawContours(Mat *drawing, vector< vector<Point> > *contours, vector<Vec4i> *hierarchy, int thickness, int largest_contour_index, int area_threshold){
+int drawContours(Mat &drawing, vector< vector<Point> > &contours, vector<Vec4i> &hierarchy, int thickness, int largest_contour_index, int area_threshold){
 	
 	//cout << "contours->size(): " << contours->size() << endl;
 	//cout << "largest_contour_index: " << largest_contour_index << endl;
 	//cout << "area_threshold: " << area_threshold << endl;
 	
-	for( size_t i = 0; i < contours->size(); i++ )
+	for( size_t i = 0; i < contours.size(); i++ )
 	{
 	
 		//cout << "For Loop: " << i << endl;
 		//cout << "contours[i]: " << contourArea((*contours)[i]) << endl;
 
 
-		if((contourArea((*contours)[i]) <= area_threshold) || i != largest_contour_index ){
+		if((contourArea((contours)[i]) <= area_threshold) || i != largest_contour_index ){
 			continue;
 		}
 
-		drawContours( *drawing, *contours, int(i), Scalar(255,0,0), thickness, 8, *hierarchy, 0, Point() );
+		drawContours( drawing, contours, int(i), Scalar(255,0,0), thickness, 8, hierarchy, 0, Point() );
 	}
 
 	//imshow("drawContours", drawing);
