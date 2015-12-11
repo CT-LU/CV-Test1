@@ -1,0 +1,3 @@
+[submodule "com/fast-rcnn"]
+	path = com/fast-rcnn
+	url = https://github.com/joeking11829/fast-rcnn
