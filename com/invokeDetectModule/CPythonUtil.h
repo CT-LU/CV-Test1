@@ -33,7 +33,7 @@ class CinvokePythonUtil {
 			PyRun_SimpleString("import sys");
 			PyRun_SimpleString("sys.path.append('./')");
             //Add Fast-RCNN source path
-            PyRun_SimpleString("sys.path.append('/home/joe/NvidiaDIGITSv2/fast-rcnn/tools/')");
+            PyRun_SimpleString("sys.path.append('../fast-rcnn/tools/')");
 			
 			callMethod = PyObject_CallMethod;
 			parseArg = PyArg_Parse;
