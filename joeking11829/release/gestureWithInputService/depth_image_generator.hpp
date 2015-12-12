@@ -10,7 +10,8 @@ using namespace std;
 
 int getDepthCamera(VideoCapture &capture);
 
-int getDepthImage(VideoCapture capture, Mat &image);
+int getDepthImage(VideoCapture capture, Mat &depth_image);
+int getBGRImage(VideoCapture capture, Mat &bgr_image);
 
 int filterDepthImage(Mat &image, int start_depth, int end_depth);
 

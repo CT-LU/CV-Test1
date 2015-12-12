@@ -30,10 +30,9 @@ int getDepthCamera(VideoCapture &capture){
 }
 
 
-int getDepthImage(VideoCapture capture, Mat &image){
+int getDepthImage(VideoCapture capture, Mat &depth_image){
 
 	//depth image
-	//Mat depthMap;
 
 	if( !capture.grab() )
 	{
@@ -43,14 +42,36 @@ int getDepthImage(VideoCapture capture, Mat &image){
 	else
 	{
 
-		if( capture.retrieve( image, CAP_OPENNI_DEPTH_MAP ) )
+		if( capture.retrieve( depth_image, CAP_OPENNI_DEPTH_MAP ) )
 		{
 			const float scaleFactor = 0.05f;
 			//Mat show;
-			image.convertTo( image, CV_8UC1, scaleFactor );
+			depth_image.convertTo( depth_image, CV_8UC1, scaleFactor );
 
-			//imshow( "depth map", *image );
+			//imshow( "depth map", depth_image );
 
+		}
+
+	}
+
+	return 0;
+}
+
+int getBGRImage(VideoCapture capture, Mat &bgr_image){
+
+	//bgr image
+
+	if( !capture.grab() )
+	{
+		cout << "Can not grab bgr images." << endl;
+		return -1;
+	}
+	else
+	{
+
+		if( capture.retrieve( bgr_image, CAP_OPENNI_BGR_IMAGE ) )
+		{
+			//imshow( "bgr map", bgr_image );
 		}
 
 	}
