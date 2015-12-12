@@ -10,7 +10,7 @@ CXXLIB = -L./ -L/usr/lib -lgmmWithCuda
 all:libgmmWithCuda.so mask 
 
 libgmmWithCuda.so: gmmWithCuda.o
-	${CC} gmmWithCuda.o ${CFLAGS} ${INC} ${LIB} -o $@
+	${CC} $< ${CFLAGS} ${INC} ${LIB} -o $@
 
 gmmWithCuda.o: gmmWithCuda.cu gmmWithCuda.h
 	${CC} $< ${CFLAGS} ${INC} ${LIB} -c          
@@ -18,10 +18,9 @@ gmmWithCuda.o: gmmWithCuda.cu gmmWithCuda.h
 MaskWithCudaGmm.o:MaskWithCudaGmm.cpp MaskWithCudaGmm.hpp
 	${HOST_CC} $< ${CXXFLAGS} ${INC} ${CXXLIB} -c          
 
-mask: main.cpp libgmmWithCuda.so MaskWithCudaGmm.o
-	${HOST_CC} $< MaskWithCudaGmm.o ${CXXFLAGS} ${INC} ${CXXLIB} -o $@
+mask: test.cpp MaskWithCudaGmm.o
+	${HOST_CC} $? ${CXXFLAGS} ${INC} ${CXXLIB} -o $@
 
 .PHONY: clean
 clean:                             
-	rm -rf *.o libgmm*.*
-	rm mask
+	rm -rf *.o libgmm*.* mask
