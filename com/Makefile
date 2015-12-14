@@ -23,7 +23,6 @@ handGesture: $(OBJS) main.cpp
 	g++ $? $(LIBS) $(LDLIBS) $(INC) $(CFLAGS) -o $@ 
 
 clean:                             
-	make clean -C ./invokeDetectModule
-	make clean -C ./MaskWithCudaGmm/
+	for dir in $(SUBDIRS); do $(MAKE) clean -C $$dir; done
 	rm -rf *.o handGesture
 
