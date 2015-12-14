@@ -7,7 +7,7 @@
 
 #include "hand_detect.hpp"
 
-#include "CPythonUtil.h"
+#include "CPythonUtil.hpp"
 
 #define FRAME_WIDTH 640
 #define FRAME_HEIGHT 480

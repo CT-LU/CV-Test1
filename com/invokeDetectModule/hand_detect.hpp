@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "CPythonUtil.h"
+#include "CPythonUtil.hpp"
 
 using namespace cv;
 using namespace std;
