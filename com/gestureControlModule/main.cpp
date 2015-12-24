@@ -10,6 +10,8 @@
 #include "gesture_control.hpp"
 #include "hand_detect.hpp"
 
+#include "MaskWithCudaGmm.hpp"
+
 #include <signal.h>
 #include <syslog.h>
 
@@ -58,6 +60,21 @@ int main(int argc, char** argv){
     int rect[4] = {0};
     bool get_roi = false;
     
+    //GMM Initial
+#ifdef DEPTH_CAMERA
+    //get Depth and BGR frame
+    gesture.getNextDetectFrame(depth_frame, frame);
+#else
+    cap >> frame;
+    if(frame.empty()){
+        cout << "get RGB Frame Error";
+        break;
+    }
+#endif
+
+    //GMM Filter
+	MaskWithCudaGmm masker(frame.ptr(0));
+
     for(;;){
         if(!get_roi){
 #ifdef DEPTH_CAMERA
@@ -70,6 +87,14 @@ int main(int argc, char** argv){
                 break;
             }
 #endif
+ 
+            //GMM Filter
+		    Mat mask_frame = Mat::zeros(frame.size(), CV_8UC3);
+		    //Get GMM Mask
+            masker.maskWithCudaGmm(frame, mask_frame);
+
+            imshow("GMM", mask_frame);
+
             //Run Hand Detect
             rect[4] = {0};
             hand_detector.detect(frame, rect);
