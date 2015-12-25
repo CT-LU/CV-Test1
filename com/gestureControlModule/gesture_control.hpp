@@ -37,7 +37,7 @@ enum GESTURE_COMMAND {
 class GestureControl {
 public:
     GestureControl();
-    Rect getGestureROI();
+    void generateStaticGestureROI();
     void generateGestureROI(const Rect &hand_roi, const Mat &depth_frame);
     int openDepthCamera();
     void trackingObjectByContour(int largest_contour_index);
