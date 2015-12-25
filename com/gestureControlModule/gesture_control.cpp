@@ -1,12 +1,13 @@
 //Gesture Controller
-#include "gesture_control.hpp"
 #include <opencv2/core/utility.hpp>
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/videoio/videoio.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include "depth_image_generator.hpp"
+
+#include "gesture_control.hpp"
 #include "contours_operator.hpp"
+
 #include <signal.h>
 #include <syslog.h>
 
@@ -39,6 +40,18 @@ GestureControl::GestureControl(){
 
 }
 
+void GestureControl::setGestureROI(int xmin, int ymin, int xmax, int ymax, int depth_min, int depth_max){
+    
+    //ROI for tracking
+    roi_rect = Rect(xmin, ymin, (xmax - xmin), (ymax - ymin));
+    cout << "ROI Rect -> Width: " << roi_rect.width << "  Height: " << roi_rect.height << endl;
+
+    //Set Depth range
+    start_depth = depth_min;
+    end_depth = depth_max;
+}
+
+#if 0
 void GestureControl::generateStaticGestureROI(){
     //Calculate ROI parameter
     int source_image_width = capture.get(3);
@@ -194,26 +207,9 @@ void GestureControl::generateGestureROI(const Rect &hand_roi, const Mat &depth_f
     */
     
 }
-
-int GestureControl::openDepthCamera(){
-    //getDepthCamera
-    if(getDepthCamera(capture) == -1)
-    {
-        cout << "Open Depth Camera Failed !!" << endl;
-        syslog(LOG_ERR, "Open Depth Camera Failed !!");
-        return -1;
-    }else{
-        cout << "Depth Camera Open Succeed !!" << endl;
-        syslog(LOG_INFO, "Depth Camera Open Succeed !!");
-    }
-}
+#endif
 
 void GestureControl::trackingObjectByContour(int largest_contour_index){
-    
-    //clear drawing
-    if(origin == resetPoint){
-        drawing = Mat::zeros(image.size(), CV_8UC3);
-    }
     
     //Using Contour tracking Object
     if(largest_contour_index != -1)
@@ -243,7 +239,7 @@ void GestureControl::trackingObjectByContour(int largest_contour_index){
 
         //Draw center of trackBox
         circle( drawing, center_of_trackBox, 5, Scalar(181,186,10), -1, 8, 0 );
-        circle( debug_image, center_of_trackBox, 5, Scalar(181,186,10), -1, 8, 0 );
+        circle( debug_frame, center_of_trackBox, 5, Scalar(181,186,10), -1, 8, 0 );
 
     }
 }
@@ -329,46 +325,42 @@ void GestureControl::sendGestureCommand(){
     }
 }
 
-void GestureControl::getNextDetectFrame(Mat &depth_image, Mat &bgr_image){
-    //get Depth and BGR Image
-    getDepthAndBGRImage(capture, depth_image, bgr_image);
+void GestureControl::filterDepthImage(Mat &src_image, Mat &dst_image, int start_depth, int end_depth){
+	
+	//Joe add threshold
+	threshold(src_image, dst_image, start_depth, 255, THRESH_TOZERO);
+	threshold(dst_image, dst_image, end_depth, 255, THRESH_TOZERO_INV);
+	
+	//adaptiveThreshold(dst_image, dst_image, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 3, -3);
+
+	//imshow( "threshold depth map", dst_image );
 }
 
-void GestureControl::getNextBGRFrame(Mat &bgr_image){
-    //getBGRImage
-    getBGRImage(capture, bgr_image);
-}
-
-void GestureControl::getNextDepthFrame(Mat &depth_image){
-    //getDepthImage
-    getDepthImage(capture, depth_image);
-}
-
-void GestureControl::processNextFrame(){
+void GestureControl::processNextFrame(Mat &depth_frame){
     
-    //Get Next Depth Frame
-    getNextDepthFrame(image);
-    //imshow("Depth inside", image);
-
     //filterDepthImage
     //cout << "filter depth with " << start_depth << " and " << end_depth << endl;
-    filterDepthImage(image, image, start_depth, end_depth);
-    //filterDepthImage(image, image, 65, 80);
+    filterDepthImage(depth_frame, depth_frame, start_depth, end_depth);
     //show depth image
-    //imshow("Filtered Depth", image);
+    //imshow("Filtered Depth", depth_frame);
     //Create ROI Mask
-    mask = Mat(image.size(), CV_8UC1, Scalar::all(255));
+    mask = Mat(depth_frame.size(), CV_8UC1, Scalar::all(255));
     mask(roi_rect).setTo(Scalar::all(0));
     //imshow("Mask", mask);
-    image.setTo( 0, mask);
-    //imshow("Depth with Mask", image);
+    depth_frame.setTo( 0, mask);
+    //imshow("Depth with Mask", depth_frame);
 
     //Create debug frame
-    debug_image = Mat(image.size(), CV_8UC3, Scalar::all(255));
-    image.copyTo(debug_image);
+    debug_frame = Mat(depth_frame.size(), CV_8UC3, Scalar::all(255));
+    depth_frame.copyTo(debug_frame);
 
+    //clear drawing
+    if(origin == resetPoint){
+        drawing = Mat::zeros(depth_frame.size(), CV_8UC3);
+    }
+    
     //findContours
-    getContours(image, contours, hierarchy);
+    getContours(depth_frame, contours, hierarchy);
     //get largest contour
     largest_contour_index = findLargestContourIndex(contours);
     //cout << "largest_contour_index: " << largest_contour_index << endl;
@@ -422,11 +414,6 @@ void GestureControl::processNextFrame(){
 } 
 
 void GestureControl::shutdownGesture(){
-
-    if(capture.isOpened()){
-        capture.release();
-    }
-
 #ifdef ENABLE_INPUT_SERVICE
 	//shutdown InputService Interface
 	shutdownInterface();

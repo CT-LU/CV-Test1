@@ -1,15 +1,14 @@
 //Gesture Controller Header
 //#define ENABLE_INPUT_SERVICE
-//#define START_DEPTH 65
-//#define END_DEPTH 80
 
 #include <opencv2/core/utility.hpp>
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/videoio/videoio.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include "depth_image_generator.hpp"
+
 #include "contours_operator.hpp"
+
 #include <signal.h>
 #include <syslog.h>
 
@@ -25,6 +24,7 @@ extern "C" {
 
 using namespace cv;
 using namespace std;
+
 //Gesture Command Type
 enum GESTURE_COMMAND {
 	NONE,
@@ -37,22 +37,22 @@ enum GESTURE_COMMAND {
 class GestureControl {
 public:
     GestureControl();
+    void setGestureROI(int xmin, int ymin, int xmax, int ymax, int depth_min, int depth_max);
+#if 0
     void generateStaticGestureROI();
     void generateGestureROI(const Rect &hand_roi, const Mat &depth_frame);
-    int openDepthCamera();
+#endif
     void trackingObjectByContour(int largest_contour_index);
     void resetGestureEnviroment();
     void getGestureDirection();
     void sendGestureCommand();
-    void getNextDetectFrame(Mat &depth_image, Mat &bgr_image);
-    void getNextBGRFrame(Mat &bgr_image);
-    void getNextDepthFrame(Mat &depth_image);
-    void processNextFrame();
+    void filterDepthImage(Mat &src_image, Mat &dst_image,
+                          int start_depth, int end_depth);
+    void processNextFrame(Mat &depth_frame);
     void shutdownGesture();
     
     //OpenCV object
-    VideoCapture capture;
-	Mat image, drawing, mask, debug_image;
+	Mat drawing, mask, debug_frame;
     Rect roi_rect;
 
     //track offset of object
@@ -62,7 +62,7 @@ public:
 	//Point center_of_roi = resetPoint;
 
     //hand depth
-    int depth_base = 0;
+    //int depth_base = 0;
     int start_depth = 0;
     int end_depth = 0;
 
@@ -71,6 +71,7 @@ public:
 	int area_threshold = 0;
 
 private:
+    
     //TrackBox
 	Rect trackBox;
 	Point center_of_trackBox = Point(-1,-1);
