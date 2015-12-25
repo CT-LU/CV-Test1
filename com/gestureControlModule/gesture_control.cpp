@@ -39,30 +39,26 @@ GestureControl::GestureControl(){
 
 }
 
-Rect GestureControl::getGestureROI(){
+void GestureControl::generateStaticGestureROI(){
     //Calculate ROI parameter
     int source_image_width = capture.get(3);
     int source_image_height = capture.get(4);
     cout << "Frame Width: " << source_image_width << endl;
     cout << "Frame Height: " << source_image_height << endl;
-    
-    //Dynamic Cube Parameter
-    int rand_x = (rand()%(source_image_width-300)) + 150;
-    int rand_y = (rand()%(source_image_height-300)) + 150;
-    cout << "Rand X:  " << rand_x << endl;
-    cout << "Rand Y:  " << rand_y << endl;
-    int rand_width = 100;
-    int rand_height = 100;
 
     //ROI Rect
-    //int roi_rect_width = source_image_width * 0.5;
-    //int roi_rect_height = source_image_height * 0.4;
-    //int roi_rect_start_x = (source_image_width - roi_rect_width) * 0.5 ;
-    //int roi_rect_start_y = (source_image_height - roi_rect_height) * 0.5;
+    int roi_rect_width = source_image_width * 0.5;
+    int roi_rect_height = source_image_height * 0.4;
+    int roi_rect_start_x = (source_image_width - roi_rect_width) * 0.5 ;
+    int roi_rect_start_y = (source_image_height - roi_rect_height) * 0.5;
     
     //ROI for tracking
-    //Rect roi_rect(roi_rect_start_x, roi_rect_start_y, roi_rect_width, roi_rect_height);
-    return Rect(rand_x, rand_y, rand_width, rand_height);
+    roi_rect = Rect(roi_rect_start_x, roi_rect_start_y, roi_rect_width, roi_rect_height);
+    cout << "ROI Rect -> Width: " << roi_rect.width << "  Height: " << roi_rect.height << endl;
+
+    //Set Depth range
+    start_depth = 65;
+    end_depth = 80;
 }
 
 void GestureControl::generateGestureROI(const Rect &hand_roi, const Mat &depth_frame){
