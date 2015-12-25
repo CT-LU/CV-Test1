@@ -21,6 +21,5 @@ MaskWithCudaGmm.o:MaskWithCudaGmm.cpp MaskWithCudaGmm.hpp
 mask: test.cpp MaskWithCudaGmm.o
 	${HOST_CC} $? ${CXXFLAGS} ${INC} ${CXXLIB} -o $@
 
-.PHONY: clean
 clean:                             
 	rm -rf *.o libgmm*.* mask
