@@ -21,5 +21,7 @@ MaskWithCudaGmm.o:MaskWithCudaGmm.cpp MaskWithCudaGmm.hpp
 mask: test.cpp MaskWithCudaGmm.o
 	${HOST_CC} $? ${CXXFLAGS} ${INC} ${CXXLIB} -o $@
 
+install:libgmmWithCuda.so
+	cp $? /usr/local/lib
 clean:                             
 	rm -rf *.o libgmm*.* mask
