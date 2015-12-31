@@ -61,6 +61,9 @@ int main(int argc, char** argv){
 
     //ShutdownGesture
     gesture.shutdownGesture();
+
+    //Release
+	delete cam;
     
     return 0;
 }
