@@ -14,9 +14,15 @@ MaskWithCudaGmm::~MaskWithCudaGmm() {
 
 int MaskWithCudaGmm::getContours(const Mat &image, vector< vector<Point> > &contours, vector<Vec4i> &hierarchy){
 
+    //Erode
+    Mat elementB(3, 3, CV_8U, Scalar(1));
+    erode(image, image, elementB, Point(-1, -1), 1);
+
 	//MorphologyEx
 	Mat elementA(3, 3, CV_8U, Scalar(1));
 	morphologyEx(image, image, cv::MORPH_CLOSE, elementA);
+
+    //imshow("MorEX", image);
 
 	//findContours
 	//get Contours external

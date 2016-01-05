@@ -21,7 +21,8 @@ class CinvokePythonUtil {
 		 * The constructor is to perform a couple of necessary calls
 		 * After initializing steps, it will get the python instance.
 		 */
-		CinvokePythonUtil(const char* module, const char* class_name); 
+		CinvokePythonUtil(const char* module, const char* class_name,
+                          const char* system_path); 
 
 		/*
 		 * release all python objects via destructor

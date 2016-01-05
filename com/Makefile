@@ -1,9 +1,15 @@
-SUBDIRS = invokeDetectModule MaskWithCudaGmm 
+SUBDIRS = camera gestureControlModule cubeGenerator invokeDetectModule MaskWithCudaGmm
 
 CVINCLUDE = `pkg-config --cflags opencv` 
 CVLIB = `pkg-config --libs opencv`
 
-OBJS = ./invokeDetectModule/hand_detect.o ./MaskWithCudaGmm/MaskWithCudaGmm.o
+OBJS = ./camera/XtionCam.o 
+OBJS += ./gestureControlModule/contours_operator.o 
+OBJS += ./gestureControlModule/gesture_control.o
+OBJS += ./cubeGenerator/CubeGenerator.o
+OBJS += ./invokeDetectModule/CPythonUtil.o
+OBJS += ./invokeDetectModule/hand_detect.o 
+OBJS += ./MaskWithCudaGmm/MaskWithCudaGmm.o
 
 LIBS = $(CVLIB) -L./MaskWithCudaGmm/ -L/usr/lib/python2.7/config-x86_64-linux-gnu -L/usr/lib 
 INC = $(CVINCLUDE) -I/usr/include/python2.7 -I/usr/include/x86_64-linux-gnu/python2.7 

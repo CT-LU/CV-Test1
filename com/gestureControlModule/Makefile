@@ -7,12 +7,18 @@ INC_PATH = -I$(CAMERA_DIR)
 LIBS = $(OPENCVFLAG)
 FLAG = $(OPENCVLIBS)
 
-all:gesture_app
+all: gesture_app
 
 $(CAMERA_DIR)/XtionCam.o:$(CAMERA_DIR)
 	$(MAKE) -C $(CAMERA_DIR)
 
-gesture_app:contours_operator.cpp gesture_control.cpp test.cpp $(CAMERA_DIR)/XtionCam.o
+contours_operator.o: contours_operator.cpp
+	g++ $< $(LIBS) $(FLAG) -c
+
+gesture_control.o: gesture_control.cpp
+	g++ $< $(LIBS) $(FLAG) -c
+
+gesture_app: test.cpp contours_operator.o gesture_control.o $(CAMERA_DIR)/XtionCam.o
 	g++ $? $(INC_PATH) $(LIBS) $(FLAG) -o $@  
 	
 clean:

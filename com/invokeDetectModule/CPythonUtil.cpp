@@ -14,7 +14,8 @@ PyObject* CinvokePythonUtil::createPyArray(const unsigned char* frame, int heigh
  * The constructor is to perform a couple of necessary calls
  * After initializing steps, it will get the python instance.
  */
-CinvokePythonUtil::CinvokePythonUtil(const char* module, const char* class_name) {
+CinvokePythonUtil::CinvokePythonUtil(const char* module, const char* class_name,
+                                     const char* system_path) {
 
 	Py_Initialize();
 	if ( !Py_IsInitialized() ) 
@@ -25,6 +26,19 @@ CinvokePythonUtil::CinvokePythonUtil(const char* module, const char* class_name)
 	} 
 	PyRun_SimpleString("import sys");
 	PyRun_SimpleString("sys.path.append('./')");
+    //Add customized path
+    const char* header1 = "sys.path.append('";
+    const char* header2 = "')";
+    if( system_path )
+    {
+        char* pSysPath = malloc(sizeof(header1) + sizeof(header2) + 
+                                sizeof(system_path));
+        strcpy(pSysPath, header1);
+        strcat(pSysPath, system_path);
+        strcat(pSysPath, header2);
+        printf("load system_path -> %s \n", pSysPath);
+        PyRun_SimpleString(pSysPath);
+    }
 
 	callMethod = PyObject_CallMethod;
 	parseArg = PyArg_Parse;

@@ -4,20 +4,17 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
+#include "../gestureControlModule/contours_operator.hpp"
+
 #include <iostream>
 
-#include "CPythonUtil.hpp"
 
 using namespace cv;
 using namespace std;
 
-class HandDetector {
+class CubeGenerator {
 public:
-    HandDetector(const char* fast_rcnn_path);
-    void detect(const Mat& frame, int rect[4]);
-    ~HandDetector();
-
-private:
-    //Initial Python Interface
-    CinvokePythonUtil *pyObj;
+    CubeGenerator();
+    void generateCube(const Rect &hand_roi, const Mat &depth_frame, int cube[6]);
+    ~CubeGenerator();
 };

@@ -1,3 +1,4 @@
+#define DEPTH_CAMERA
 #include <iostream>
 #include <opencv2/core/utility.hpp>
 #include "opencv2/video/tracking.hpp"
@@ -9,6 +10,10 @@
 
 #include "CPythonUtil.hpp"
 
+#ifdef DEPTH_CAMERA
+#include "../camera/XtionCam.hpp"
+#endif
+
 #define FRAME_WIDTH 640
 #define FRAME_HEIGHT 480
 
@@ -19,25 +24,26 @@ using namespace cv;
 int main(int argc, char const *argv[])
 {
     //Initial Hand Detector
-    HandDetector hand_detector = HandDetector();
+    HandDetector hand_detector = HandDetector("../fast-rcnn/tools/");
     
     //Hand Detector TEST CODE
     //hand_detector.detect();
-
-    
-    VideoCapture cap;
-    Mat frame;
     
     //Create Frame
+    Mat frame;
     frame.create(Size(FRAME_WIDTH, FRAME_HEIGHT), CV_8UC3);
-
     //if ( frame.isContinuous() ) cout << "yes" << endl;
+
+#ifdef DEPTH_CAMERA
+    ICamera* cam = new XtionCam();
+#else
     //Open RGB Camera
+    VideoCapture cap;
     cap.open(0);
     cap.set(cv::CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
     
-    //Chrck Camera is OK
+    //Check Camera is OK
     if( !cap.isOpened() )
     {
         cout << "Can not open camera !!" << endl;
@@ -51,9 +57,15 @@ int main(int argc, char const *argv[])
         cout << "Can not read data from the Camera !!" << endl;
         exit(1);
     }
+#endif
 
     for(;;){
+
+#ifdef DEPTH_CAMERA
+        cam->getBgrImage(frame);
+#else
         cap >> frame;
+#endif
         if(frame.empty()){
             break;
             //exit(1);
@@ -72,9 +84,14 @@ int main(int argc, char const *argv[])
         int key_code = waitKey(30);
         if(key_code == 27) break;
     }
-    
+
+#ifdef DEPTH_CAMERA
+    //Release
+    delete cam;
+#else
     if(cap.isOpened())
         cap.release();
+#endif
 
 	return 0;
 }
