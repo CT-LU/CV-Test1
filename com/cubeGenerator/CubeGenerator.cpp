@@ -103,6 +103,19 @@ void CubeGenerator::generateCube(const Rect &hand_roi, const Mat &depth_frame, i
     cube[1] = roi_rect.y;
     cube[2] = roi_rect.x + roi_rect.width;
     cube[3] = roi_rect.y + roi_rect.height;
+    //Check the Boundary
+    if(cube[3] >= depth_frame.rows){
+        cube[3] = depth_frame.rows;
+    }
+
+    //Show Cube result
+    cout << "Cube ROI ->" << 
+            " xmin:" << cube[0] << 
+            " xmax:" << cube[1] << 
+            " ymin:" << cube[2] << 
+            " ymax:" << cube[3] <<
+            " start_depth:" << cube[4] <<
+            " end_depth:" << cube[5] << endl;
 }
 
 CubeGenerator::~CubeGenerator(){
