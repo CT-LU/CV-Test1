@@ -4,7 +4,7 @@ MAINTAINER JOE YOUNG <joeking11829@gmail.com>
 
 # Install OpenCV dependency lib
 RUN sudo apt-get update
-RUN sudo apt-get install -y python-dev python-pip build-essential cmake pkg-config libatlas-base-dev gfortran \
+RUN sudo apt-get install -y python-dev python-pip python-numpy build-essential cmake pkg-config libatlas-base-dev gfortran \
                             libjasper-dev libgtk2.0-dev libavcodec-dev libavformat-dev \
                             libswscale-dev libjpeg-dev libpng-dev libtiff-dev libv4l-dev v4l-utils
 
@@ -62,6 +62,8 @@ RUN echo "usr/local/liib" >> /etc/ld.so.conf.d/opencv.conf && sudo ldconfig -v
 RUN export LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH && sudo ldconfig
 RUN export LD_LIBRARY_PATH=/home/gesture/opencv-3.0.0/release/:$LD_LIBRARY_PATH && sudo ldconfig
 RUN echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig" >> /etc/bash.bashrc
+# Install OpenCV-Python2.7 cv2.so
+RUN sudo cp lib/cv2.so /usr/lib/python2.7/dist-packages/.
 
 # ReSet libcuda.so
 RUN rm -rf /usr/lib/x86_64-linux-gnu/libcuda.so

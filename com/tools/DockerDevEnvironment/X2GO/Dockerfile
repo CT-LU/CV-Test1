@@ -38,8 +38,9 @@ RUN echo "gesture:foxconn" | chpasswd
 
 # Set Environment Variable
 RUN echo "export CUDA_HOME=/usr/local/cuda" >> /etc/bash.bashrc
-RUN echo "export PATH=/usr/local/bin:/usr/local/nvidia/bin:/usr/local/nvidia/sbin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/bash.bashrc
-RUN echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/lib:/usr/local/lib" >> /etc/bash.bashrc
+RUN echo "export PATH=/usr/local/bin:/usr/local/cuda/bin:/usr/local/nvidia/bin:/usr/local/nvidia/sbin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin" >> /etc/bash.bashrc
+RUN echo "export LD_LIBRARY_PATH=/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/lib:/usr/local/lib" >> /etc/bash.bashrc
+RUN echo "export LIBRARY_PATH=/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/lib" >> /etc/bash.bashrc
 
 # Set SSH Config
 RUN mkdir -p /var/run/sshd
